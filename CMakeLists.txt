@@ -24,24 +24,27 @@ set(serial_SRCS
 )
 
 ## Add serial library
-add_library(${PROJECT_NAME} ${serial_SRCS})
+add_library(${PROJECT_NAME} SHARED ${serial_SRCS})
+
 target_link_libraries(${PROJECT_NAME} rt pthread)
 
 ## Install executable
-install(TARGETS ${PROJECT_NAME}
+install(
+    TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
 )
 
-## Install headers
-install(FILES include/serial/serial.h include/serial/v8stdint.h
-  DESTINATION include)
+## Include headers
+include_directories(include)
 
-## Tests
-if(COLCON_ENABLE_TESTING)
-    add_subdirectory(tests)
-endif()
+# specific order: dependents before dependencies
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+## Install headers
+# install(FILES include/serial/serial.h include/serial/v8stdint.h
+#   DESTINATION include)
 
 ament_package()
