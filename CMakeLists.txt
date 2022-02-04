@@ -11,40 +11,41 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 
-## Include headers
-include_directories(include)
 
 ## Sources
 set(serial_SRCS
-    src/serial.cc
-    src/impl/unix.cc
-    src/impl/list_ports/list_ports_linux.cc
-    include/serial/serial.h
-    include/serial/v8stdint.h
+src/serial.cc
+include/serial/serial.h
+include/serial/v8stdint.h
+src/impl/unix.cc
+src/impl/list_ports/list_ports_linux.cc
 )
 
 ## Add serial library
-add_library(${PROJECT_NAME} SHARED ${serial_SRCS})
+add_library(${PROJECT_NAME} ${serial_SRCS})
 
 target_link_libraries(${PROJECT_NAME} rt pthread)
 
-## Install executable
-install(
-    TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-)
-
-## Include headers
-include_directories(include)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 # specific order: dependents before dependencies
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 
-## Install headers
-# install(FILES include/serial/serial.h include/serial/v8stdint.h
-#   DESTINATION include)
-
 ament_package()
+
+## Install executable
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT export_${PROJECT_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+## Install headers
+install(DIRECTORY include/
+  DESTINATION include/)
